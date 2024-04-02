@@ -218,7 +218,7 @@ class SourceTree(Gtk.VBox):
         filename to pass to ctags, and the uri is the actual URI as known by
         Gedit. They would be different for remote files.
         """
-        command = "ctags -nu --fields=fiKlmnsSzt -f - '%s'" % path
+        command = "ctags --langmap=c++:+.ino -nu --fields=fiKlmnsSzt -f - '%s'" % path
         #self._log.debug(command)
         try:
             parser = ctags.Parser()
