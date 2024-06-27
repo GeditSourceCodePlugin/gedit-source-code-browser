@@ -3,7 +3,7 @@ import sys
 import logging
 import tempfile
 from . import ctags
-from gi.repository import GObject, GdkPixbuf, Gedit, Gtk, PeasGtk, Gio
+from gi.repository import GObject, GdkPixbuf, Gedit, Gtk, PeasGtk, Gio, Tepl
 
 logging.basicConfig()
 LOG_LEVEL = logging.WARN
@@ -329,8 +329,8 @@ class SourceCodeBrowserPlugin(GObject.Object, Gedit.WindowActivatable, PeasGtk.C
         self._sourcetree.show_line_numbers = self.show_line_numbers
         self._sourcetree.expand_rows = self.expand_rows
         self._sourcetree.sort_list = self.sort_list
-        panel = self.window.get_side_panel()
-        panel.add_titled(self._sourcetree, "SymbolBrowserPlugin", "Source Code")
+        side_panel = self.window.get_side_panel()
+        self.side_panel_item = Tepl.Panel.add(side_panel, self._sourcetree, "SymbolBrowserPlugin", "Source Code", None)
         self._handlers = []
         hid = self._sourcetree.connect("draw", self.on_sourcetree_draw)
         self._handlers.append((self._sourcetree, hid))
@@ -352,9 +352,9 @@ class SourceCodeBrowserPlugin(GObject.Object, Gedit.WindowActivatable, PeasGtk.C
         for obj, hid in self._handlers:
             obj.disconnect(hid)
         self._handlers = None
-        pane = self.window.get_side_panel()
-        pane.remove(self._sourcetree)
-        self._sourcetree = None
+        side_panel = self.window.get_side_panel()
+        Tepl.Panel.remove(side_panel, self.side_panel_item)
+        self.side_panel_item = None
     
     def _has_settings_schema(self):
         schemas = Gio.Settings.list_schemas()
@@ -392,13 +392,13 @@ class SourceCodeBrowserPlugin(GObject.Object, Gedit.WindowActivatable, PeasGtk.C
         self._sourcetree.clear()
         self._is_loaded = False
         # do not load if not the active tab in the panel
-        panel = self.window.get_side_panel()
-        if panel.get_visible_child() != self._sourcetree:
+        side_panel = self.window.get_side_panel()
+        if side_panel.get_active_item() != self.side_panel_item:
             return
 
         document = self.window.get_active_document()
         if document:
-            location = document.get_location()
+            location = document.get_file().get_location()
             if location:
                 uri = location.get_uri()
                 self._log.debug("Loading %s...", uri)
@@ -467,11 +467,9 @@ class SourceCodeBrowserPlugin(GObject.Object, Gedit.WindowActivatable, PeasGtk.C
         """ Go to the line where the double-clicked symbol is defined. """
         uri, line = location
         self._log.debug("%s, line %s." % (uri, line))
-        document = self.window.get_active_document()
         view = self.window.get_active_view()
         line = int(line) - 1 # lines start from 0
-        document.goto_line(line)
-        view.scroll_to_cursor()
+        view.goto_line(line)
         
     def _version_check(self):
         """ Make sure the exhuberant ctags is installed. """
