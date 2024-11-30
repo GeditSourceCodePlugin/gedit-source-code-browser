@@ -1,8 +1,6 @@
 Gedit Source Code Browser
 =========================
 
-![No Longer Maintained](https://img.shields.io/badge/maintained-no-red.svg)
-
 A source code class and function browser plugin for Gedit 3.
 
 This plugin will add a new tab to the side pane in the Gedit text editor which
@@ -33,10 +31,14 @@ Make sure that you see *Exuberant* Ctags in the version output.
 Installation
 ------------
 
+**Note:** some distributions (including Debian, Ubuntu and other derivatives)
+offer the plugin already packaged, in which case you can install it via your
+package manager, and jump to point 3 below.
+
 1. Download this repository by clicking the Downloads button at the top of the
    github page or issue the following command in a terminal:
 
-    git clone git://github.com/MicahCarrick/gedit-source-code-browser.git
+    git clone git@github.com:GeditSourceCodePlugin/gedit-source-code-browser.git
 
 2. Copy the file `sourcecodebrowser.plugin` and the folder `sourcecodebrowser` to
    `~/.local/share/gedit/plugins/`.
